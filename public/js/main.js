@@ -24,6 +24,8 @@ var PhaserGame = function () {
 
     this.alien = null;
 
+    this.point = null;
+
     this.mode = 2;
 
     this.points1 = {
@@ -47,31 +49,31 @@ PhaserGame.prototype = {
     init: function () {
 
         this.game.renderer.renderSession.roundPixels = true;
-        this.stage.backgroundColor = '#204090';
+        this.stage.backgroundColor = 'rgba(0, 0, 0, 1)';
 
     },
 
     preload: function () {
 
-        //  We need this because the assets are on Amazon S3
-        //  Remove the next 2 lines if running locally
-        this.load.baseURL = 'http://files.phaser.io.s3.amazonaws.com/codingtips/issue008/';
-        this.load.crossOrigin = 'anonymous';
-
-        this.load.image('alien', 'assets/ufo.png');
-        this.load.bitmapFont('shmupfont', 'assets/shmupfont.png', 'assets/shmupfont.xml');
-
+        this.load.image('alien', 'images/ufo.png');
+        this.load.bitmapFont('shmupfont', 'images/shmupfont.png', 'images/shmupfont.xml');
+        this.load.image('point','images/point.png');
         //  Note: Graphics are not for use in any commercial project
 
     },
 
     create: function () {
 
+
+
         this.bmd = this.add.bitmapData(this.game.width, this.game.height);
         this.bmd.addToWorld();
 
         this.alien = this.add.sprite(0, 0, 'alien');
         this.alien.anchor.set(0.5);
+
+        this.point = this.game.make.sprite(0,0,'point');
+        this.bmd.draw(this.point,100,100);
 
         var py = this.points1.y;
 
@@ -80,9 +82,8 @@ PhaserGame.prototype = {
             py[i] = this.rnd.between(32, 432);
         }
 
-        this.hint = this.add.bitmapText(8, 444, 'shmupfont', "Linear", 24);
+        this.hint = this.add.bitmapText(8, 444, 'shmupfont', "Wave Hero", 24);
 
-        this.input.onDown.add(this.changeMode, this);
 
         this.interpolation(this.points1, this.path1);
 
@@ -114,31 +115,6 @@ PhaserGame.prototype = {
 
     },
 
-    changeMode: function () {
-
-        this.mode++;
-
-        if (this.mode === 3)
-        {
-            this.mode = 0;
-        }
-
-        if (this.mode === 0)
-        {
-            this.hint.text = "Linear";
-        }
-        else if (this.mode === 1)
-        {
-            this.hint.text = "Bezier";
-        }
-        else if (this.mode === 2)
-        {
-            this.hint.text = "Catmull Rom";
-        }
-
-        this.plot();
-
-    },
 
     interpolation: function(points, path)
     {
@@ -160,7 +136,9 @@ PhaserGame.prototype = {
 
         for (var i = 0; i < this.path1.length ; i ++)
         {
-          this.bmd.rect(path[i].x, path[i].y, 1, 1, 'rgba(255, 255, 255, 1)');
+          // this.bmd.rect(path[i].x, path[i].y, 1, 1, 'rgba(255, 255, 255, 1)');
+          this.bmd.draw(this.point,path[i].x,path[i].y,10,20);
+
         }
 
         // for (var p = 0; p < this.points1.x.length; p++)
