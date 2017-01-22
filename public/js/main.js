@@ -5,8 +5,9 @@ function preload() {
     game.load.image('bg', 'assets/bg.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
-    game.load.spritesheet('player', 'assets/player.png', 100, 87);
-    game.load.spritesheet('box', 'assets/box.png', 300, 500);
+    game.load.spritesheet('bomb', 'assets/bomb.png', 200, 500, 3)
+    game.load.spritesheet('player', 'assets/player.png', 100, 87, 16);
+    game.load.spritesheet('box', 'assets/box.png', 180, 500, 5);
 
 }
 
@@ -14,7 +15,7 @@ var player;
 var platforms;
 var cursors;
 
-var stars;
+var bombs;
 var score = 0;
 var scoreText;
 
@@ -25,8 +26,10 @@ function create() {
 
     //  A simple background for our game
     bg = game.add.sprite(0, 0, 'bg');
-    box = game.add.sprite(game.world.width - 300, 0, 'box');
-    box.animations.add('play', [0, 1, 2], 10, true);
+    box = game.add.sprite(game.world.width - 180, 0, 'box');
+    box.animations.add('play', [0, 1, 2, 4, 5], 20, true);
+    box.animations.play('play');
+
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
@@ -45,7 +48,7 @@ function create() {
 
 
     // The player and its settings
-    player = game.add.sprite(game.world.width - 300, game.world.height / 2, 'player');
+    player = game.add.sprite(game.world.width - 180, game.world.height / 2, 'player');
     player.scale.setTo(0.7)
 
     //  We need to enable physics on the player
@@ -57,21 +60,23 @@ function create() {
     player.animations.add('left', [0, 1, 2, 3, 4, 5, 6, 7], 10, true);
     player.animations.add('right', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
 
-    //  Finally some stars to collect
-    stars = game.add.group();
+    //  Finally some bombs to collect
+    bombs = game.add.group();
 
-    //  We will enable physics for any star that is created in this group
-    stars.enableBody = true;
+    //  We will enable physics for any bomb that is created in this group
+    bombs.enableBody = true;
 
     //  Here we'll create 12 of them evenly spaced apart
     for (var i = 0; i < 1000; i++)
     {
-        //  Create a star inside of the 'stars' group
-        var star = stars.create(game.world.randomX, game.world.randomY - game.world.height * (i % 100 + 1), 'star');
-
+        //  Create a bomb inside of the 'bombs' group
+        var bomb = bombs.create(game.world.randomX, game.world.randomY - game.world.height * (i % 100 + 1), 'bomb');
+        bomb.animations.add('play', [0, 1, 2], 15, true);
+        bomb.animations.play('play');
         //  Let gravity do its thing
-        star.body.velocity.y = 200;
-        star.anchor.setTo(0.5)
+        bomb.body.velocity.y = 200;
+        bomb.anchor.setTo(0.5)
+        bomb.scale.setTo(0.1)
     }
 
     //  The score
@@ -84,12 +89,12 @@ function create() {
 
 function update() {
 
-    //  Collide the player and the stars with the platforms
+    //  Collide the player and the bombs with the platforms
     game.physics.arcade.collide(player, platforms);
-    game.physics.arcade.collide(stars, platforms);
+    game.physics.arcade.collide(bombs, platforms);
 
-    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-    game.physics.arcade.overlap(player, stars, collectStar, null, this);
+    //  Checks to see if the player overlaps with any of the bombs, if he does call the collectStar function
+    game.physics.arcade.overlap(player, bombs, collectBomb, null, this);
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = -50;
@@ -116,9 +121,9 @@ function update() {
 
 }
 
-function collectStar (player, star) {
+function collectBomb (player, bomb) {
 
-    // Removes the star from the screen
+    // Removes the bomb from the screen
     player.kill();
 
     //  Add and update the score
