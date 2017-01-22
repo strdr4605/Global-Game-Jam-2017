@@ -80,7 +80,7 @@ function create() {
     }
 
     //  The score
-    scoreText = game.add.text(16, 16, 'Dont collide', { fontSize: '32px', fill: '#FFF' });
+    scoreText = game.add.text(16, 16, 'Dont touch the meteors', { fontSize: '32px', fill: '#FFF' });
 
     //  Our controls.
     cursors = game.input.keyboard.createCursorKeys();
